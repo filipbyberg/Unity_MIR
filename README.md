@@ -33,4 +33,5 @@ Side note: MQTT data on web application must be listened to the MQTT endpoint bu
 Important note: in development tests, you should bypass the CORS (using a browser plugin/extension), otherwise your browser will block the requests. on deployment, if you will use solution 2, you have to ask to who created the service, to allow your website endpoint to access those data ( here a related issue, which could help you understand better what I mean: https://stackoverflow.com/questions/31276220/cors-header-access-control-allow-origin-missing).
 
 Here chrome extension for bypass CORS. (https://chromewebstore.google.com/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf?pli=1)
+
 Here firefox extension for bypass CORS. (https://addons.mozilla.org/en-US/firefox/addon/access-control-allow-origin/)
