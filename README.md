@@ -1,37 +1,48 @@
-Real time data for WebGL application.
+## 3d Digital Twin for MIR-robot in Unity
 
-This solution provides a way to use WebSockets/MQTT real time data in a webGL application.
+![image](https://github.com/filipbyberg/Unity_MIR/assets/80341025/059629ba-7280-4e4f-96b9-02e5d5a6b10a)
 
-Avoiding the polling to the server. This could improve the performance of the application, especially if the application manages more devices, using more APIs endpoints.
+## What is it?
 
-This solution consists in creating C# Scripts as usually in the Unity side, assign the scripts to GameObjects and create public functions (non-static), which just care about taking parameters and use them (in our case could be the “MoveMir” function).
+This is a Unity project Digital Twin (DT) for a MIR robot operating at a warehouse. It takes real time data from the actual MIR robot to mimic the movements of the virtual robot.
 
-Once done that, we can build our WebGL (but before, go to Project Settings -> Player -> Publishing Settings and set Compression Format to ‘disabled).
+## Showcases
 
-Now we can create a ‘Next.js’ web application. (https://nextjs.org/)
+- Early-development showcase of DT: https://www.youtube.com/watch?v=6NCK1_Gycps
+- Showchase of scene containing 3D reconstruction of warehouse: https://www.youtube.com/watch?v=DBkUR780ihM&t=177s
+- Full Application showcase: https://www.youtube.com/watch?v=3Wb2je1Pz6w&t=55s
 
-(To use Next.js, is necessary that you have some knowledge of React.js, but on the website you can find also very nice tutorials on how to start with Next.js)
-Considering that Next.js is a javascript framework based on React, here we can use React packages.
+## Useful information for web requests in Unity.
+web requests are possible on Unity only and exclusively with the class they provide us 'UnityWebRequest', other external classes or libraries could cause problems in builds.
+You can find examples on how to use it here: https://docs.unity3d.com/ScriptReference/Networking.UnityWebRequest.html
 
-So in our Next.js application we can install the following package react-unity-webgl in order to embed our Unity WebGL Build inside a dynamic web application. (https://react-unity-webgl.dev/)
+Usually the server responds with a Json, in order to convert the Json in a programming object we have to deserialize it, but before we must define the class that represents the data we are going to receive.
+In order to create that class I suggest 2 ways:
 
-Thanks to the ‘sendMessage’ function the library provide us, from the web client application we can call unity functions.
+  1. Copy the json response from the server (or from a sample response usually findable in the Swagger)
+  2. Using this service: https://json2csharp.com/
+     
+And then paste the class in a C# script.
+Replace the ‘RootObject’ class name with the name you want (better if equals to file name, for consistency).
 
-Heres more official info of ‘sendMessage’ javascript method to call unity function, over the ‘Calling Unity scripts functions from JavaScript’ section. (https://docs.unity3d.com/2017.3/Documentation/Manual/webgl-interactingwithbrowserscripting.html)
+Unity wants that every class is set as public and Serializable in order to be able to serialize/deserialize it, more info here: https://docs.unity3d.com/ScriptReference/Serializable.html
 
+Only public fields are serializable/deserializable.
+So, we must remove all the getters and setters, if any.
 
-How all this is useful for web sockets?
+To Serialize objects to json, or to deserialize json to get objects, with Unity the class recommended is ‘JsonUtility’.
+Here some instructions on how to use it: https://dev.rbcafe.com/unity/unity-5.3.3/en/Manual/JSONSerialization.html
 
-Because on the web application side, we can easily get real time data from a web socket service (also MQTT), and every time a message arrives from the server to our application, we can call a Unity Function from ‘outside’.
+## Useful information for Navigation Mesh in Unity.
 
-The Idea is to set up a mqtt and/or websocket channel in order to get MiR real time data, and call the ‘MoveMir’ function we previously created.
+In order to get smoother navigation in Unity, we could use the AI solution Unity provides (AI Navigation).
+Here is a good video to start with. I suggest to watch it before go on: https://www.youtube.com/watch?v=u2EQtrdgfNs
 
-Considering there is not a websocket channel yet, I show you that you could polling from website or subscribe to a MQTT Topic in order to get real time data, and pass data into the Unity application.
+Basically you have to download the AI Navigation package, create a NavMeshSurface, after setting your environment (floor, wall, and non-movable objects) as static, you can create your agent type (Its already set up in this project) and bake the surface.
 
-Side note: MQTT data on web application must be listened to the MQTT endpoint but using the websocket protocol, you can read more info here.
+I added to the Scene ‘NavMeshMovement’ to the player the script ‘NavMeshAgent’ and set everything as the MiR agent created before.
 
-Important note: in development tests, you should bypass the CORS (using a browser plugin/extension), otherwise your browser will block the requests. on deployment, if you will use solution 2, you have to ask to who created the service, to allow your website endpoint to access those data ( here a related issue, which could help you understand better what I mean: https://stackoverflow.com/questions/31276220/cors-header-access-control-allow-origin-missing).
+I set to the agent an acceleration of 120 in order to simulate a linear speed as much similar as possible.
 
-Here chrome extension for bypass CORS. (https://chromewebstore.google.com/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf?pli=1)
+A script called ‘PlayerMir_NavMesh’ is responsible for the AI navigation, which is similar to ‘PlayerMir’ but using the NavMesh for the movement and ‘Quaternion.Slerp’ for the rotation. While the player mir uses "MoveTowards" instead (wich also works, but can be tideous to tune for correct movement)
 
-Here firefox extension for bypass CORS. (https://addons.mozilla.org/en-US/firefox/addon/access-control-allow-origin/)
